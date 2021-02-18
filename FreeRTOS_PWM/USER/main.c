@@ -10,7 +10,7 @@
 
 #define mainCHECK_TASK_STACK_SIZE			( configMINIMAL_STACK_SIZE + 50 )
 
-void TIM3_PWM_Init(u16 arr,u16 psc)
+void PWM_Init(u16 arr,u16 psc)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
@@ -20,7 +20,7 @@ void TIM3_PWM_Init(u16 arr,u16 psc)
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOA| RCC_APB2Periph_AFIO,ENABLE);
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3,ENABLE);
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE); //TIM2 不重映射 PA0、PA1、PA2、PA3
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE); 
 	
 	
 	GPIO_InitStructure.GPIO_Pin=GPIO_Pin_13;
@@ -35,17 +35,17 @@ void TIM3_PWM_Init(u16 arr,u16 psc)
 	
 	
 	 
-//	GPIO_PinRemapConfig(GPIO_FullRemap_TIM3,ENABLE);//TIM3部分重映像  PC6 PC7 PC8 PC9
-	GPIO_PinRemapConfig(GPIO_PartialRemap_TIM3,ENABLE);//TIM3部分重映像  PB4 PB5 PB0 PB1
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5| GPIO_Pin_4 | GPIO_Pin_0| GPIO_Pin_1; //TIM3_CH2 1 3 4
-//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6| GPIO_Pin_7 | GPIO_Pin_8| GPIO_Pin_9; //TIM3_CH2 1 3 4
+	GPIO_PinRemapConfig(GPIO_FullRemap_TIM3,ENABLE);//TIM3完全重映像  PC6 PC7 PC8 PC9
+//	GPIO_PinRemapConfig(GPIO_PartialRemap_TIM3,ENABLE);//TIM3部分重映像  PB4 PB5 PB0 PB1
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5| GPIO_Pin_4 | GPIO_Pin_0| GPIO_Pin_1; //TIM3_CH2 1 3 4
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6| GPIO_Pin_7 | GPIO_Pin_8| GPIO_Pin_9; //TIM3_CH1 2 3 4
 	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_50MHz;
-	GPIO_Init(GPIOB,&GPIO_InitStructure);
-//	GPIO_Init(GPIOC,&GPIO_InitStructure);
+//	GPIO_Init(GPIOB,&GPIO_InitStructure);
+	GPIO_Init(GPIOC,&GPIO_InitStructure);
 	
 	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0| GPIO_Pin_1; //TIM2_CH1 2
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0| GPIO_Pin_1; //TIM2_CH1 2     //TIM2 不重映射 PA0、PA1、PA2、PA3
 	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA,&GPIO_InitStructure);
@@ -91,53 +91,25 @@ void vPWMTask(void * pvParameters)
 {
 	while(1)
 	{
+		TIM_SetCompare1(TIM3,176);
 		TIM_SetCompare2(TIM3,176);
-		TIM_SetCompare1(TIM3,177);
-		TIM_SetCompare3(TIM3,179);
-		TIM_SetCompare4(TIM3,178);
+		TIM_SetCompare3(TIM3,176);
+		TIM_SetCompare4(TIM3,176);
 				
-		TIM_SetCompare1(TIM2,179);
-		TIM_SetCompare2(TIM2,178);
+		TIM_SetCompare1(TIM2,175);
+		TIM_SetCompare2(TIM2,180);
 		
 		vTaskDelay(3000);
-	/**	
-			
-		vTaskDelay(2000);
-		TIM_SetCompare2(TIM3,180);
-		
-		TIM_SetCompare1(TIM3,193);
-		TIM_SetCompare3(TIM3,193);
-		TIM_SetCompare4(TIM3,176);
-		
-		vTaskDelay(2000);
-		TIM_SetCompare2(TIM3,185);
-		
-		TIM_SetCompare1(TIM3,190);
-		TIM_SetCompare3(TIM3,176);
-		TIM_SetCompare4(TIM3,190);
-		
-		vTaskDelay(2000);
-		TIM_SetCompare2(TIM3,190);
-		
-		TIM_SetCompare1(TIM3,185);
-		TIM_SetCompare3(TIM3,176);
-		TIM_SetCompare4(TIM3,190);
-		**/
-		
 	
-		TIM_SetCompare2(TIM3,194);
-		TIM_SetCompare1(TIM3,193);
-		TIM_SetCompare3(TIM3,192);
-		TIM_SetCompare4(TIM3,191);
+		TIM_SetCompare1(TIM3,190);
+		TIM_SetCompare2(TIM3,189);
+		TIM_SetCompare3(TIM3,190);
+		TIM_SetCompare4(TIM3,189);
 		
-		TIM_SetCompare1(TIM2,190);
+		TIM_SetCompare1(TIM2,187);
 		TIM_SetCompare2(TIM2,189);
 		vTaskDelay(3000);
-		/**
-		TIM_SetCompare1(TIM3,176);
-		TIM_SetCompare3(TIM3,180);
-		TIM_SetCompare4(TIM3,185);
-		**/
+		
 	}
 	
 }
@@ -156,8 +128,8 @@ void vLEDToggleTask(void * pvParameters)
 int main(void)
 {
 NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4); 
-	//TIM3_PWM_Init(899,0);
-	TIM3_PWM_Init(199,7199);
+	
+	PWM_Init(199,7199);
 	//GPIO_ResetBits(GPIOC,GPIO_Pin_13);
 	 
   xTaskCreate( vPWMTask, "vPWMTask", 256, NULL, 2, NULL );
